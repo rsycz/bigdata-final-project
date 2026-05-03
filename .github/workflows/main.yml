@@ -1,25 +1,21 @@
 # .github/workflows/main.yml
 name: CI
-
 on:
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Build and start development containers
         run: docker compose up -d --build
-
+      - name: Wait for containers to be ready
+        run: sleep 10
       - name: Check that the web service is running
         run: docker compose ps | grep "web"
-
       - name: Tear down containers
         run: docker compose down -v
