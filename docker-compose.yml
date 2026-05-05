@@ -6,6 +6,7 @@ services:
     command: python manage.py run -h 0.0.0.0
     volumes:
       - ./services/web/:/usr/src/app/
+      - /data/tweets_corona:/data/tweets_corona:ro
     ports:
       - 1097:5000
     env_file:
