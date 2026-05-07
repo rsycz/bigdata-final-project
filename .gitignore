@@ -4,3 +4,4 @@ __pycache
 .env.prod
 .env.prod.db
 *.log
+.env.dev
