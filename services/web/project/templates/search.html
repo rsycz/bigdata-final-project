@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Search</h1>
+<form method="GET">
+    <input type="text" name="q" value="{{ query }}">
+    <input type="submit" value="Search">
+</form>
+
+{% if query %}
+    <h2>Results for "{{ query }}"</h2>
+    {% if tweets %}
+        {% for tweet in tweets %}
+        <div>
+            <b>{{ tweet['username'] }}</b>
+            <small>{{ tweet['created_at'].strftime('%Y-%m-%d %H:%M:%S') }}</small>
+            <p>{{ tweet['message'] | safe }}</p>
+            <hr>
+        </div>
+        {% endfor %}
+
+        <div>
+            {% if page > 1 %}
+                <a href="/search?q={{ query }}&page={{ page - 1 }}">Previous</a>
+            {% endif %}
+            {% if tweets|length == 20 %}
+                <a href="/search?q={{ query }}&page={{ page + 1 }}">Next</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}

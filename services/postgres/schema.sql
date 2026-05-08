@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS rum;
 
 -------------------------------------------------------------------------------
 -- USERS
@@ -34,4 +35,4 @@ CREATE TABLE IF NOT EXISTS tweets (
 
 CREATE INDEX IF NOT EXISTS idx_tweets_created_at ON tweets(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_tweets_user_id ON tweets(user_id);
-CREATE INDEX IF NOT EXISTS idx_tweets_fts ON tweets USING GIN(to_tsvector('english', message));
+CREATE INDEX IF NOT EXISTS idx_tweets_fts ON tweets USING RUM(to_tsvector('english', message));

@@ -101,6 +101,61 @@ def create_account():
 
     return render_template("create_account.html")
 
+@app.route("/create_message", methods=["GET", "POST"])
+def create_message():
+    if "username" not in session:
+        flash("You must be logged in to post a message", "error")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        message = request.form["message"]
+
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM users WHERE username = %s", (session["username"],))
+        user_id = cur.fetchone()[0]
+        cur.execute("""
+            INSERT INTO tweets (user_id, message)
+            VALUES (%s, %s)
+        """, (user_id, message))
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        flash("Tweet posted!", "success")
+        return redirect(url_for("index"))
+
+    return render_template("create_message.html")
+
+@app.route("/search")
+def search():
+    query = request.args.get('q', '')
+    page = request.args.get('page', 1, type=int)
+    offset = (page - 1) * 20
+    tweets = []
+
+    if query:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT
+                users.username,
+                ts_headline('english', tweets.message, plainto_tsquery('english', %s),
+                    'StartSel=<mark>, StopSel=</mark>') AS message,
+                tweets.created_at
+            FROM tweets
+            JOIN users ON tweets.user_id = users.id
+            WHERE to_tsvector('english', tweets.message) @@ plainto_tsquery('english', %s)
+            ORDER BY ts_rank(to_tsvector('english', tweets.message), plainto_tsquery('english', %s)) DESC
+            LIMIT 20 OFFSET %s
+        """, (query, query, query, offset))
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        tweets = [{'username': r[0], 'message': r[1], 'created_at': r[2]} for r in rows]
+
+    return render_template('search.html', tweets=tweets, query=query, page=page)
+
 @app.route("/static/<path:filename>")
 def staticfiles(filename):
     return send_from_directory(app.config["STATIC_FOLDER"], filename)
