@@ -21,7 +21,7 @@ CONN = {
 }
 
 TWEETS_DIR = "/data/tweets_corona"
-MAX_FILES = 25        # increase this once you've confirmed it works
+MAX_FILES = 60        # increase this once you've confirmed it works
 MAX_PER_FILE = 50000 # tweets to read per zip file
 
 def parse_created_at(s):
